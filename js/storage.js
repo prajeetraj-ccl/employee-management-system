@@ -7,7 +7,7 @@ export function initializeUsers(){
             {
                 id: 1,
                 name: "Admin User",
-                username: "admin",
+                username: "Santhosh",
                 email: "admin@example.com",
                 password: "admin123",
                 role: "Admin"
@@ -15,7 +15,7 @@ export function initializeUsers(){
             {
                 id: 2,
                 name: "Manager User",
-                username: "manager",
+                username: "Barani",
                 email: "manager@example.com",
                 password: "manager123",
                 role: "Manager"
@@ -23,12 +23,11 @@ export function initializeUsers(){
             {
                 id: 3,
                 name: "Employee User",
-                username: "employee",
+                username: "Vicky",
                 email: "employee@example.com",
                 password: "employee123",
                 role: "Employee"
-            }
-
+            },
         ];
         localStorage.setItem(USERS_KEY, JSON.stringify(sampleUsers));
     }

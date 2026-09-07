@@ -76,6 +76,7 @@
                     emailError,
                     passwordError,  
                     successMessage,
+                    loginError,
                 }   
             );
     });

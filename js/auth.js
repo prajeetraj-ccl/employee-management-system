@@ -6,11 +6,11 @@ export function loginUser(emailorUsername, password,elements){
     }) 
 
     if(!user){
-            elements.loginError.textContent = "invalid email or username/password";
-            return fasle;
+            elements.loginError.textContent = "invalid Username/email or password.";
+            return false;
     }
     if(user.password !== password){
-        elements.loginError.textContent = "invalid email or username/password";
+        elements.loginError.textContent = "invalid Username/email or password.";
         return false;
     }
     const currentUser = {
