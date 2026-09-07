@@ -7,7 +7,7 @@ export function getCurrentUser(){
 }
 
 export function getCurrentUserRole(){
-    const currentUser = getCurrent();
+    const currentUser = getCurrentUser();
     if(currentUser === null){
         return null;
     }
@@ -29,7 +29,7 @@ export function isEmployee(){
     return role === "Employee";
 }
 
-export function canDeleteEmmployee(){
+export function canDeleteEmployee(){
     return isAdmin();
 }
 
@@ -41,7 +41,23 @@ export function canEditEmployee(){
     return isAdmin();
 }
 
-export function canViewEmployee(){
+export function canViewEmployees(){
     const role = getCurrentUserRole();
     return (role === "Admin" || role === "Manager" || role === "Employee")
+}
+
+export function canViewEmployeeDetails(employee){
+    const currentUser = getCurrentUser();
+    if(currentUser === null){
+        return false;
+    }
+
+    if (currentUser.role === "Admin" || currentUser.role === "Manager"){
+        return true;
+    }
+
+    if(currentUser.role === "Employee" && employee.userId === currentUser.id){
+        return true;
+    }
+    return false;
 }
