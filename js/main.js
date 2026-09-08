@@ -1,33 +1,24 @@
 import { createLoginPage } from "./ui.js";
 import { loginUser } from "./auth.js";
-import {
-getCurrentUser,
-canAddEmployee,
-canEditEmployee,
-canDeleteEmployee,
-canViewEmployeeDetails
-} from "./authorization.js";
-import {
-initializeUsers,
-initializeEmployees,
-getEmployees
-} from "./storage.js";
+import {getCurrentUser} from "./authorization.js";
+import {initializeUsers,initializeEmployees,getEmployees} from "./storage.js";
+import {showEmployees} from "./employee.js";
 
 initializeUsers();
-initializeEmployees()
+initializeEmployees();
 
 function checkAuthentication() {
-  const isAuthenticated = sessionStorage.getItem("isAuthenticated");
+  const isAuthenticated =sessionStorage.getItem("isAuthenticated");
   if (isAuthenticated === "true") {
     showDashboard();
   } else {
     showLogin();
   }
-};
+}
 
 function showLogin() {
-  createLoginPage(function (emailOrUsername, password, elements) {
-    const success = loginUser(emailOrUsername, password, elements);
+  createLoginPage(function (emailOrUsername,password,elements) {
+    const success =loginUser(emailOrUsername,password,elements);
     if (success) {
       setTimeout(function () {
         showDashboard();
@@ -36,313 +27,220 @@ function showLogin() {
   });
 }
 
-function showDashboard() {
-  const currentUser = getCurrentUser();
-  if (currentUser === null) {
-    showLogin();
-    return;
-  }
-  document.body.textContent = "";
-  const dashboard = document.createElement("div");
-  dashboard.classList.add("dashboard");
-  const title = document.createElement("h1");
-  title.textContent = "Dashboard";
-  const userText = document.createElement("p");
-  const role = getCurrentUser();
-  userText.textContent = `Welcome, ${currentUser.name} `;
-  const employeeButton = document.createElement("button");
-  employeeButton.textContent = "Employees";
-  employeeButton.classList.add("logout-button");
-  employeeButton.addEventListener("click", function () {
-    showEmployees();
-  });
-
-
-  const logoutButton = document.createElement("button");
-  logoutButton.textContent = "Logout";
-  logoutButton.classList.add("logout-button");
-  logoutButton.addEventListener("click", function () {
-    logout();
-  });
-  dashboard.append(title, userText, employeeButton, logoutButton);
-  document.body.append(dashboard);
+function logout() {
+  sessionStorage.removeItem("currentUser");
+  sessionStorage.removeItem("isAuthenticated");
+  showLogin();
 }
 
-
-function showEmployees() {
-  const currentUser = getCurrentUser();
+function createAppLayout() {
+  const currentUser =getCurrentUser();
   if (currentUser === null) {
     showLogin();
-    return;
+    return null;
   }
   document.body.textContent = "";
-  const appLayout = document.createElement("div");
+
+  const appLayout =document.createElement("div");
   appLayout.classList.add("app-layout");
-  const header = document.createElement("header");
+  const header =document.createElement("header");
   header.classList.add("app-header");
   const appTitle = document.createElement("h2");
-  appTitle.textContent = "CCL Billz";
+  appTitle.textContent ="Employee Management";
   appTitle.classList.add("app-title");
-  const headerUser = document.createElement("div");
+  const headerUser =document.createElement("div");
   headerUser.classList.add("header-user");
+
   const userName = document.createElement("span");
   userName.textContent = currentUser.name;
   userName.classList.add("user-name");
   const userRole = document.createElement("span");
-  userRole.textContent = currentUser.role;
+  userRole.textContent =currentUser.role;
   userRole.classList.add("user-role");
-  const logoutButton = document.createElement("button");
-  logoutButton.textContent = "Logout";
+  const logoutButton =document.createElement("button");
+  logoutButton.textContent ="Logout";
   logoutButton.classList.add("logout-button");
-  logoutButton.addEventListener("click", function () {
+  logoutButton.addEventListener("click",function () { 
     logout();
-  });
-  headerUser.append(userName,userRole,logoutButton
+    }
   );
-  header.append( appTitle, headerUser)
+  headerUser.append(userName,userRole,logoutButton);
+  header.append( appTitle, headerUser);
 
-  const bodyLayout = document.createElement("div");
+  const bodyLayout =document.createElement("div");
   bodyLayout.style.display = "flex";
   bodyLayout.style.flex = "1";
 
   const sidebar = document.createElement("aside");
   sidebar.classList.add("sidebar");
-  const sidebarMenu = document.createElement("div");
+  const sidebarMenu =document.createElement("div");
   sidebarMenu.classList.add("sidebar-menu");
-
   const dashboardButton = document.createElement("button");
-  dashboardButton.textContent = "Dashboard";
+  dashboardButton.textContent ="Dashboard";
   dashboardButton.classList.add("sidebar-button");
-  dashboardButton.addEventListener("click", function () {
-    showDashboard();
-  });
-
+  dashboardButton.addEventListener("click",function () {
+      showDashboard();
+    }
+  );
   const employeesButton = document.createElement("button");
   employeesButton.textContent = "Employees";
-  employeesButton.classList.add(
-    "sidebar-button",
-    "active"
+  employeesButton.classList.add("sidebar-button");
+  employeesButton.addEventListener( "click", function () {
+      showEmployees(createAppLayout, showDashboard);
+    }
   );
+
   const profileButton = document.createElement("button");
   profileButton.textContent = "Profile";
-  profileButton.classList.add("sidebar-button");
+  profileButton.classList.add( "sidebar-button");
+  profileButton.addEventListener( "click",function () {
+      showProfile();
+    }
+  );
+
   sidebarMenu.append(dashboardButton,employeesButton,profileButton);
   sidebar.append(sidebarMenu);
-  const mainContent = document.createElement("main");
-  mainContent.classList.add("main-content");
 
-  const page = document.createElement("div");
-  page.classList.add("employee-page");
-  const employeeHeader = document.createElement("div");
-  employeeHeader.classList.add("employee-header");
-  const title = document.createElement("h1");
-  title.textContent = "Employees";
-  if (canAddEmployee()) {
-    const addButton = document.createElement("button");
-    addButton.textContent = "+ Add Employee";
-    addButton.classList.add(
-      "action-button",
-      "btn-primary"
-    );
-    addButton.addEventListener("click", function () {
-      if (!canAddEmployee()) {
-        alert(
-          "You are not authorized to add employees."
-        );
-        return;
-      }
-      alert(
-        "Add Employee screen will be created next."
-      );
-    });
-    employeeHeader.append(addButton);
-  }
-  employeeHeader.prepend(title);
-  const controls = document.createElement("div");
-  controls.classList.add("employee-controls");
+  const mainContent =document.createElement("main");
+  mainContent.classList.add( "main-content"
+  );
 
-  const searchInput = document.createElement("input");
-  searchInput.type = "text";
-  searchInput.placeholder = "Search employee...";
-  searchInput.classList.add("search-input");
-
-  const departmentSelect = document.createElement("select");
-  departmentSelect.classList.add("filter-select");
-  const departmentDefault = document.createElement("option");
-  departmentDefault.value = "";
-  departmentDefault.textContent = "Department";
-  departmentSelect.append(departmentDefault);
-  const statusSelect = document.createElement("select");
-  statusSelect.classList.add("filter-select");
-  const statusDefault = document.createElement("option");
-  statusDefault.value = "";
-  statusDefault.textContent = "Status";
-  const activeOption = document.createElement("option");
-  activeOption.value = "Active";
-  activeOption.textContent = "Active";
-  const inactiveOption = document.createElement("option");
-  inactiveOption.value = "Inactive";
-  inactiveOption.textContent = "Inactive";
-  statusSelect.append(statusDefault,activeOption,inactiveOption);
-  controls.append(searchInput,departmentSelect,statusSelect);
-  const table = document.createElement("table");
-  table.classList.add("employee-table");
-  const thead = document.createElement("thead");
-  const headerRow = document.createElement("tr");
-  const headers = [
-    "ID",
-    "Name",
-    "Email",
-    "Department",
-    "Status",
-    "Actions"
-  ];
-  headers.forEach(function (headerName) {
-    const th = document.createElement("th");
-    th.textContent = headerName;
-    headerRow.append(th);
-  });
-  thead.append(headerRow);
-  const tbody = document.createElement("tbody");
-  const employees = getEmployees();
-  employees.forEach(function (employee) {
-    const row = document.createElement("tr");
-    const idCell = document.createElement("td");
-    idCell.textContent = employee.id;
-    const nameCell = document.createElement("td");
-    nameCell.textContent = employee.name;
-    const emailCell = document.createElement("td");
-    emailCell.textContent = employee.email;
-    const departmentCell = document.createElement("td");
-    departmentCell.textContent = employee.department;
-    const statusCell = document.createElement("td");
-    const status = document.createElement("span");
-    status.textContent = employee.status;
-    status.classList.add("status-badge");
-    if (employee.status === "Active") {
-      status.classList.add("status-active");
-    } else {
-      status.classList.add("status-inactive");
-    }
-    statusCell.append(status);
-    const actionsCell = document.createElement("td");
-    const actionGroup = document.createElement("div");
-    actionGroup.classList.add("action-group");
-    if (canViewEmployeeDetails(employee)) {
-      const viewButton = document.createElement("button");
-      viewButton.textContent = "View";
-      viewButton.classList.add(
-        "action-button",
-        "btn-secondary"
-      );
-      viewButton.addEventListener("click", function () {
-        if (!canViewEmployeeDetails(employee)) {
-          alert(
-            "You are not authorized to view this employee."
-          );
-          return;
-        }
-        alert(
-          "Employee: " +
-          employee.name +
-          "\nEmail: " +
-          employee.email
-        );
-      });
-      actionGroup.append(viewButton);
-    }
-    if (canEditEmployee()) {
-      const editButton = document.createElement("button");
-      editButton.textContent = "Edit";
-      editButton.classList.add(
-        "action-button",
-        "btn-primary"
-      );
-      editButton.addEventListener("click", function () {
-        if (!canEditEmployee()) {
-          alert(
-            "You are not authorized to edit employees."
-          );
-          return;
-        }
-        alert(
-          "Edit functionality will be created next."
-        );
-      });
-      actionGroup.append(editButton);
-    }
-
-    if (canDeleteEmployee()) {
-      const deleteButton = document.createElement("button");
-      deleteButton.textContent = "Delete";
-      deleteButton.classList.add(
-        "action-button",
-        "btn-danger"
-      );
-
-      deleteButton.addEventListener("click", function () {
-        if (!canDeleteEmployee()) {
-          alert(
-            "You are not authorized to delete employees."
-          );
-          return;
-        }
-        alert(
-          "Delete functionality will be created next."
-        );
-      });
-      actionGroup.append(deleteButton);
-    }
-    actionsCell.append(actionGroup);
-    row.append(idCell,nameCell,emailCell,departmentCell,statusCell,actionsCell);
-    tbody.append(row);
-  });
-  table.append( thead,tbody);
-  searchInput.addEventListener("input", function () {
-    const searchValue =
-      searchInput.value.toLowerCase();
-    const rows =
-      tbody.querySelectorAll("tr");
-    rows.forEach(function (row) {
-      const rowText =
-        row.textContent.toLowerCase();
-      if (rowText.includes(searchValue)) {
-        row.style.display = "";
-      } else {
-        row.style.display = "none";
-      }
-    });
-  });
-
-  const pagination = document.createElement("div");
-  pagination.classList.add("pagination");
-  const pageNumbers = [
-    "1",
-    "2",
-    "3",
-    "Next"
-  ];
-
-  pageNumbers.forEach(function (pageNumber) {
-    const pageButton =
-      document.createElement("button");
-    pageButton.textContent = pageNumber;
-    pageButton.classList.add(
-      "pagination-button"
-    );
-    pagination.append(pageButton);
-  });
-  page.append(employeeHeader,controls,table,pagination);
-  mainContent.append(page);
   bodyLayout.append(sidebar,mainContent);
   appLayout.append(header,bodyLayout);
   document.body.append(appLayout);
+
+  return {
+    mainContent,
+    dashboardButton,
+    employeesButton,
+    profileButton
+  };
 }
 
-function logout(){
-    sessionStorage.removeItem("currentUser");
-    sessionStorage.removeItem("isAuthenticated")
-    showLogin();
+function showDashboard() {
+  const layout =createAppLayout();
+  if (layout === null) {
+    return;
+  }
+  layout.dashboardButton.classList.add("active");
+  const mainContent =layout.mainContent;
+  mainContent.textContent = "";
+  const dashboard =document.createElement("div");
+  dashboard.classList.add("dashboard");
+  const title =document.createElement("h1");
+  title.textContent ="Dashboard";
+  const userText = document.createElement("p");
+  const currentUser =getCurrentUser();
+  userText.textContent =`Welcome, ${currentUser.name}`;
+  const summaryContainer =document.createElement("div");
+  summaryContainer.classList.add("summary-container");
+  const employees = getEmployees();
+  const totalCard =createSummaryCard("Employees",employees.length);
+  const activeEmployees =employees.filter(function (employee) {
+      return employee.status === "Active";
+    });
+
+  const activeCard = createSummaryCard("Active",activeEmployees.length);
+  const inactiveEmployees =employees.filter(function (employee) {
+      return employee.status === "Inactive";
+    });
+
+  const inactiveCard =createSummaryCard("Inactive",inactiveEmployees.length );
+  summaryContainer.append(totalCard,activeCard,inactiveCard);
+  const recentSection =document.createElement("div");
+  recentSection.classList.add("recent-section");
+  const recentTitle =document.createElement("h2");
+  recentTitle.textContent =" Employees";
+  const recentCard = document.createElement("div");
+  recentCard.classList.add("recent-card");
+  const recentTable =document.createElement("table");
+  recentTable.classList.add("employee-table");
+
+  const recentHead =document.createElement("thead");
+  const recentHeaderRow =document.createElement("tr");
+  const headers = [
+    "ID",
+    "Name",
+    "Department",
+    "Status"
+  ];
+
+  headers.forEach(function (headerName) {
+    const th =document.createElement("th");
+    th.textContent =headerName;
+    recentHeaderRow.append(th);
+  });
+  recentHead.append( recentHeaderRow
+  );
+
+  const recentBody =document.createElement("tbody");
+  employees
+    .slice(0, 5)
+    .forEach(function (employee) {
+      const row =document.createElement("tr");
+      const id = document.createElement("td");
+      id.textContent =employee.id;
+      const name =document.createElement("td");
+      name.textContent =employee.name;
+      const department = document.createElement("td");
+      department.textContent = employee.department;
+      const statusCell = document.createElement("td");
+      const status =document.createElement("span");
+      status.textContent =employee.status;
+      status.classList.add("status-badge");
+      if (employee.status === "Active") {
+        status.classList.add("status-active" );
+      } else {
+        status.classList.add("status-inactive");
+      }
+      statusCell.append(status);
+      row.append(id,name,department,statusCell);
+      recentBody.append(row);
+    });
+
+  recentTable.append(recentHead,recentBody);
+  recentCard.append(recentTable);
+  recentSection.append(recentTitle,recentCard);
+  dashboard.append(title,userText,summaryContainer,recentSection);
+  mainContent.append(dashboard
+  );
+}
+
+function createSummaryCard(titleText,value
+) {
+  const card =document.createElement("div");
+  card.classList.add("summary-card");
+  const title =document.createElement("p");
+  title.textContent =titleText;
+  title.classList.add("summary-card-title");
+  const number =document.createElement("div");
+  number.textContent =value;
+  number.classList.add("summary-card-value");
+  card.append(title,number);
+  return card;
+}
+
+function showProfile() {
+  const layout =createAppLayout();
+  if (layout === null) {
+    return;
+  }
+  layout.profileButton.classList.add("active" );
+  const mainContent =layout.mainContent;
+  mainContent.textContent = "";
+  const currentUser = getCurrentUser();
+  const profile =document.createElement("div");
+  profile.classList.add("employee-form");
+  const title =document.createElement("h1");
+  title.textContent ="Profile";
+  const name =document.createElement("p");
+  name.textContent =`Name: ${currentUser.name}`;
+  const email =document.createElement("p");
+  email.textContent =`Email: ${currentUser.email}`;
+  const role =document.createElement("p");
+  role.textContent =`Role: ${currentUser.role}`;
+  profile.append(title,name,email,role);
+  mainContent.append( profile);
 }
 
 checkAuthentication();

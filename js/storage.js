@@ -78,7 +78,7 @@ export function initializeEmployees(){
                 designation: "Devops",
                 salary:4000,
                 joiningDate: "2023-08-23",
-                status: "Active",
+                status: "INACTIVE",
                 userId: null
             },
         ];
