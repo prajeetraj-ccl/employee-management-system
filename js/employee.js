@@ -101,7 +101,8 @@ export function showEmployees(createAppLayout, showDashboard) {
   thead.append(headerRow);
 
   const tbody = document.createElement("tbody");
-  function renderEmployees() {tbody.textContent = "";
+  function renderEmployees() {
+    tbody.textContent = "";
     const employees = getEmployees();
     const searchValue = searchInput.value.toLowerCase().trim();
     const selectedDepartment = departmentFilter.value;
