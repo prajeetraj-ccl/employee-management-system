@@ -589,7 +589,8 @@ export function showEditEmployee(createAppLayout,showEmployees,employee ){
             return(
                 item.id.toLowerCase() === employeeId.toLowerCase()&&
                 item.id !== employeeId
-            )
+            );
+});
             if(duplicateId){
                 errorMessage.textContent = "Employee ID is Already Exist";
                 return;
@@ -623,7 +624,7 @@ export function showEditEmployee(createAppLayout,showEmployees,employee ){
             }
             return item;
         })
-        });
+        
      saveEmployees(updatedEmployees);
      showEmployees(createAppLayout,function(){});
     });
