@@ -6,6 +6,7 @@ import {
   canViewEmployeeDetails,
 } from "./authorization.js";
 import { getEmployees, saveEmployees } from "./storage.js";
+import {showDashboard} from "./main.js"
 
 export function showEmployees(createAppLayout, showDashboard) {
   const layout = createAppLayout();
@@ -182,7 +183,7 @@ export function showEmployees(createAppLayout, showDashboard) {
             alert("You are not authorized to edit employees.");
             return;
           }
-          alert("Edit functionality will be created next.");
+         showEditEmployee(createAppLayout,showEmployees,employee);
         });
         actionsCell.append(editButton);
       }
@@ -248,6 +249,8 @@ export function showAddEmployee(createAppLayout, showEmployees) {
   form.classList.add("employee-form");
   const title = document.createElement("h1");
   title.textContent = "Add Employee";
+  const formGrid = document.createElement("div");
+  formGrid.classList.add("employee-form-grid");
   const idGroup = createFormGroup("Employee ID", "employeeId", "text");
   const nameGroup = createFormGroup("Name", "employeeName", "text");
   const emailGroup = createFormGroup("Email", "employeeEmail", "email");
@@ -307,18 +310,17 @@ export function showAddEmployee(createAppLayout, showEmployees) {
   saveButton.classList.add("action-button", "btn-success");
   const cancelButton = document.createElement("button");
   cancelButton.type = "button";
-  cancelButton.textContent = "Cancel";
+  cancelButton.textContent = "Back";
   cancelButton.classList.add("action-button", "btn-secondary");
   cancelButton.addEventListener("click", function () {
     showEmployees(createAppLayout, showDashboard);
   });
   buttons.append(saveButton, cancelButton);
 
-  form.append( title,idGroup,nameGroup,emailGroup,phoneGroup,departmentGroup,designationGroup,salaryGroup,joiningDateGroup,
-    statusGroup,
-    errorMessage,
-    buttons,
+  formGrid.append(idGroup,nameGroup,emailGroup,phoneGroup,departmentGroup,designationGroup,salaryGroup,joiningDateGroup,
+  statusGroup
   );
+  form.append(title,formGrid,errorMessage,buttons);
   mainContent.append(form);
 
   form.addEventListener("submit", function (event) {
@@ -418,6 +420,225 @@ export function showAddEmployee(createAppLayout, showEmployees) {
   });
 }
 
+
+export function showEditEmployee(createAppLayout,showEmployees,employee ){
+    const layout = createAppLayout();
+    if(layout === null){
+        return;
+    }
+    if(!canEditEmployee()){
+        alert("your not authorized to edit employee");
+        return;
+    }
+    const mainContent = layout.mainContent;
+    layout.employeesButton.classList.add("active");
+    mainContent.textContent = "";
+    const form = document.createElement("form");
+    form.classList.add("employee-form");
+    const title = document.createElement("h1");
+    title.textContent = "Edit Employee";
+
+    const idGroup = createFormGroup("Employee ID","employeeId","text");
+    const nameGroup = createFormGroup("Name","employeeName","text");
+    const emailGroup = createFormGroup("Email","employeeEmail","text");
+    const phoneGroup = createFormGroup("Phone","employeePhone","text");
+    const departmentGroup = document.createElement("div");
+    departmentGroup.classList.add("form-group");
+    const departmentLabel = document.createElement("label");
+    departmentLabel.textContent = "Department";
+    departmentLabel.classList.add("form-label");
+    const department = document.createElement("select");
+    department.id = "employeeDepartment";
+    department.classList.add("form-input");
+    const departments = ["IT", "HR", "Finance", "Sales"];
+    departments.forEach(function (departmentName) {
+        const option = document.createElement("option");
+        option.value = departmentName;
+        option.textContent = departmentName;
+        department.append(option);
+    });
+    departmentGroup.append(departmentLabel, department); 
+    const designationGroup = createFormGroup("Designation","employeeDesignation","text");
+    const salaryGroup = createFormGroup("Salary","employeeSalary","number");
+    const joiningDateGroup = createFormGroup("Joining Date","employeeJoiningDate","date");
+    const statusGroup = document.createElement("div");
+    statusGroup.classList.add("form-group");
+    const statusLabel = document.createElement("label");
+    statusLabel.textContent = "Status";
+    statusLabel.classList.add("form-label");
+    const status = document.createElement("select");
+    status.id = "employeeStatus";
+    status.classList.add("form-input");
+    const activeOption = document.createElement("option");
+    activeOption.value = "Active";
+    activeOption.textContent = "Active";
+    const inactiveOption = document.createElement("option");
+    inactiveOption.value = "Inactive";
+    inactiveOption.textContent = "Inactive";
+    status.append(activeOption, inactiveOption); 
+    statusGroup.append(statusLabel,status);
+
+    const formGrid = document.createElement("div");
+    formGrid.classList.add("employee-form-grid");
+    formGrid.append(idGroup,nameGroup,emailGroup,phoneGroup,department,designationGroup,salaryGroup,
+        joiningDateGroup,statusGroup);
+    
+    const errorMessage = document.createElement("p");
+    errorMessage.classList.add("error-message");
+
+    const buttons = document.createElement("div");
+    buttons.classList.add("form-button");
+
+    const updateButton = document.createElement("button");
+    updateButton.type = "submit";
+    updateButton.textContent = "Update Employee";
+    updateButton.classList.add("action-button", "btn-success");
+
+    const backButton = document.createElement("button");
+    backButton.type = "button";
+    backButton.textContent = "Back";
+    backButton.classList.add("action-button", "btn-secondary");
+    backButton.addEventListener("click", function () {
+        showEmployees(createAppLayout, function () {});
+    });
+    buttons.append(updateButton, backButton); 
+    form.append(title,formGrid,errorMessage,buttons);
+    mainContent.append(form);
+
+    document.querySelector("#employeeId").value = employee.id;
+    document.querySelector("#employeeName").value = employee.name;
+    document.querySelector("#employeeEmail").value = employee.email;
+    document.querySelector("#employeePhone").value = employee.phone;
+    document.querySelector("#employeeDepartment").value = employee.department;
+    document.querySelector("#employeeDesignation").value = employee.designation;
+    document.querySelector("#employeeSalary").value = employee.salary;
+    document.querySelector("#employeeJoiningDate").value = employee.joiningDate;
+    document.querySelector("#employeeStatus").value = employee.status; 
+    
+    form.addEventListener("submit",function(event){
+        event.preventDefault();
+        errorMessage.textContent = "";
+        const employeeId = document.querySelector("#employeeId").value.trim();
+        const employeeName = document.querySelector("#employeeName").value.trim();
+        const employeeEmail = document.querySelector("#employeeEmail").value.trim();
+        const employeePhone = document.querySelector("#employeePhone").value.trim();
+        const employeeDepartment = document.querySelector("#employeeDepartment").value;
+        const employeeDesignation = document.querySelector("#employeeDesignation").value.trim();
+        const employeeSalary = document.querySelector("#employeeSalary").value;
+        const employeeJoiningDate = document.querySelector("#employeeJoiningDate").value;
+        const employeeStatus = document.querySelector("#employeeStatus").value;
+
+        if (employeeId === "") {
+            errorMessage.textContent = "Employee ID is required.";
+            return;
+        }
+        if (employeeName === "") {
+            errorMessage.textContent = "Name is required.";
+            return;
+        }
+        if (employeeName.length < 3) {
+            errorMessage.textContent =
+                "Name must contain at least 3 characters.";
+            return;
+        }
+        if (employeeEmail === "") {
+            errorMessage.textContent = "Email is required.";
+            return;
+        }
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailPattern.test(employeeEmail)) {
+            errorMessage.textContent = "Please enter a valid email.";
+            return;
+        }
+        if (employeePhone === "") {
+            errorMessage.textContent = "Phone is required.";
+            return;
+        }
+        const phonePattern = /^[0-9]{10}$/;
+        if (!phonePattern.test(employeePhone)) {
+            errorMessage.textContent =
+                "Phone must contain exactly 10 digits.";
+            return;
+        }
+        if (employeeDepartment === "") {
+            errorMessage.textContent = "Department is required.";
+            return;
+        }
+        if (employeeDesignation === "") {
+            errorMessage.textContent = "Designation is required.";
+            return;
+        }
+        if (employeeSalary === "") {
+            errorMessage.textContent = "Salary is required.";
+            return;
+        }
+        if (Number(employeeSalary) <= 0) {
+            errorMessage.textContent =
+                "Salary must be greater than 0.";
+            return;
+        }
+        if (employeeJoiningDate === "") {
+            errorMessage.textContent =
+                "Joining date is required.";
+            return;
+        } 
+
+        const employees = getEmployees();
+
+        const duplicateId = employees.some(function(item){
+            return(
+                item.id.toLowerCase() === employeeId.toLowerCase()&&
+                item.id !== employeeId
+            )
+            if(duplicateId){
+                errorMessage.textContent = "Employee ID is Already Exist";
+                return;
+            }
+        const duplicateEmail = employees.some(function (item) {
+            return (
+                item.email.toLowerCase() === employeeEmail.toLowerCase() &&
+                item.id !== employee.id
+        );
+        });
+
+        if (duplicateEmail) {
+            errorMessage.textContent =
+                "Email already exists.";
+            return;
+        }   
+
+        const updatedEmployees = employees.map(function(item){
+            if(item.id === employee.id){
+                return{
+                    id: employeeId,
+                    name: employeeName,
+                    email: employeeEmail,
+                    phone:employeePhone,
+                    department:employeeDepartment,
+                    designation:employeeDesignation,
+                    salary:Number(employeeSalary),
+                    joiningDate:employeeJoiningDate,
+                    status:employeeStatus
+                };
+            }
+            return item;
+        })
+        });
+     saveEmployees(updatedEmployees);
+     showEmployees(createAppLayout,function(){});
+    });
+
+
+};
+
+
+
+
+
+
+
+
+
 function createFormGroup(labelText, inputId, inputType) {
   const group = document.createElement("div");
   group.classList.add("form-group");
@@ -431,3 +652,5 @@ function createFormGroup(labelText, inputId, inputType) {
   group.append(label, input);
   return group;
 };
+
+

@@ -446,7 +446,18 @@ button {
 
   margin-bottom: 25px;
 }
-
+.employee-form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    width: 100%;
+} 
+.employee-form {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 30px;
+} 
 .form-buttons {
   display: flex;
 

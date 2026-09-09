@@ -117,7 +117,7 @@ function createAppLayout() {
   };
 }
 
-function showDashboard() {
+export function showDashboard() {
   const layout =createAppLayout();
   if (layout === null) {
     return;

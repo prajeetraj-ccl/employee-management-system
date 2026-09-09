@@ -78,9 +78,10 @@ export function initializeEmployees(){
                 designation: "Devops",
                 salary:4000,
                 joiningDate: "2023-08-23",
-                status: "INACTIVE",
+                status: "Inactive",
                 userId: null
             },
+         
         ];
         localStorage.setItem(EMPLOYEES_KEY,JSON.stringify(employees));
     }
