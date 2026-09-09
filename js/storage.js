@@ -74,7 +74,7 @@ export function initializeEmployees(){
                 name:"Vicky",
                 email: "vicky@gmail.com",
                 phone: "9900887766",
-                department: "devop",
+                department: "HR",
                 designation: "Devops",
                 salary:4000,
                 joiningDate: "2023-08-23",
