@@ -188,30 +188,33 @@ export function showEmployees(createAppLayout, showDashboard) {
         actionsCell.append(editButton);
       }
 
-      if (canDeleteEmployee()) {
-        const deleteButton = document.createElement("button");
-        deleteButton.textContent = "Delete";
-        deleteButton.classList.add("action-button", "btn-danger");
-        deleteButton.addEventListener("click", function () {
-          if (!canDeleteEmployee()) {
+      
+if (canDeleteEmployee()) {
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "Delete";
+    deleteButton.classList.add("action-button", "btn-danger");
+    deleteButton.addEventListener("click", function () {
+        if (!canDeleteEmployee()) {
             alert("You are not authorized to delete employees.");
             return;
-          }
-          const confirmDelete = confirm(
-            "Are you sure you want to delete " + employee.name + "?",
-          );
-          if (!confirmDelete) {
+        }
+        const confirmDelete = confirm(
+            "Are you sure you want to delete " + employee.name + "?"
+        );
+        if (!confirmDelete) {
             return;
-          }
-          const employees = getEmployees();
-          const updatedEmployees = employees.filter(function (item) {
+        }
+        const employees = getEmployees();
+        const updatedEmployees = employees.filter(function (item) {
             return item.id !== employee.id;
-          });
-          saveEmployees(updatedEmployees);
-          showEmployees(createAppLayout, showDashboard);
         });
-        actionsCell.append(deleteButton);
-      }
+        saveEmployees(updatedEmployees);
+        alert("Employee deleted successfully.");
+        showEmployees(createAppLayout, showDashboard);
+    });
+    actionsCell.append(deleteButton);
+}
+
       row.append(idCell,nameCell,emailCell,departmentCell,statusCell,actionsCell,);
       tbody.append(row);
     });
