@@ -140,39 +140,19 @@ export function showEmployees(createAppLayout, showDashboard) {
       statusCell.append(status);
       const actionsCell = document.createElement("td");
       actionsCell.classList.add("action-group");
-      if (canViewEmployeeDetails(employee)) {
-        const viewButton = document.createElement("button");
-        viewButton.textContent = "View";
-        viewButton.classList.add("action-button", "btn-secondary");
-        viewButton.addEventListener("click", function () {
-          if (!canViewEmployeeDetails(employee)) {
+     if (canViewEmployeeDetails(employee)) {
+    const viewButton = document.createElement("button");
+    viewButton.textContent = "View";
+    viewButton.classList.add("action-button", "btn-secondary");
+    viewButton.addEventListener("click", function () {
+        if (!canViewEmployeeDetails(employee)) {
             alert("You are not authorized to view this employee.");
             return;
-          }
-          alert(
-            "Employee Details\n\n" +
-              "ID: " +
-              employee.id +
-              "\nName: " +
-              employee.name +
-              "\nEmail: " +
-              employee.email +
-              "\nPhone: " +
-              employee.phone +
-              "\nDepartment: " +
-              employee.department +
-              "\nDesignation: " +
-              employee.designation +
-              "\nSalary: " +
-              employee.salary +
-              "\nJoining Date: " +
-              employee.joiningDate +
-              "\nStatus: " +
-              employee.status,
-          );
-        });
-        actionsCell.append(viewButton);
-      }
+        }
+        showEmployeeDetails(employee);
+    });
+    actionsCell.append(viewButton);
+} 
 
       if (canEditEmployee()) {
         const editButton = document.createElement("button");
@@ -634,6 +614,70 @@ export function showEditEmployee(createAppLayout,showEmployees,employee ){
 
 
 };
+
+
+
+function showEmployeeDetails(employee) {
+    const modal = document.createElement("div");
+    modal.classList.add("employee-modal");
+
+    const modalContent = document.createElement("div");
+    modalContent.classList.add("employee-modal-content");
+
+    const title = document.createElement("h2");
+    title.textContent = "Employee Details";
+
+    const form = document.createElement("div");
+    form.classList.add("employee-view-form");
+
+    const fields = [
+        ["Employee ID", employee.id],
+        ["Name", employee.name],
+        ["Email", employee.email],
+        ["Phone", employee.phone],
+        ["Department", employee.department],
+        ["Designation", employee.designation],
+        ["Salary", employee.salary],
+        ["Joining Date", employee.joiningDate],
+        ["Status", employee.status]
+    ];
+
+    fields.forEach(function (field) {
+        const group = document.createElement("div");
+        group.classList.add("form-group");
+
+        const label = document.createElement("label");
+        label.textContent = field[0];
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.value = field[1];
+        input.disabled = true;
+
+        group.append(label, input);
+        form.append(group);
+    });
+
+    const closeButton = document.createElement("button");
+    closeButton.type = "button";
+    closeButton.textContent = "Close";
+    closeButton.classList.add("action-button", "btn-secondary");
+
+    closeButton.addEventListener("click", function () {
+        modal.remove();
+    });
+
+    modalContent.append(
+        title,
+        form,
+        closeButton
+    );
+
+    modal.append(modalContent);
+
+    document.body.append(modal);
+} 
+
 
 
 function createFormGroup(labelText, inputId, inputType) {

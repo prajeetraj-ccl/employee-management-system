@@ -87,7 +87,6 @@ export function initializeEmployees(){
     }
 }
 
-
 export function getEmployees(){
     const employees = localStorage.getItem(EMPLOYEES_KEY);
     if(employees === null){
